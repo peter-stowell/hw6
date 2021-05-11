@@ -22,10 +22,10 @@ exports.handler = async function(event) {
   let year = event.queryStringParameters.year
   let genre = event.queryStringParameters.genre
   
-  if (year == undefined || genre == undefined) {
+  if (year == undefined || genre == undefined || year == `` || genre == ``) {
     return {
       statusCode: 200, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-      body: `Nope!` // a string of data
+      body: `Please give a year and genre.` // a string of data
     }
   }
   else {
@@ -33,15 +33,33 @@ exports.handler = async function(event) {
       numResults: 0,
       movies: []
     }
-
+    // create for loop
     for (let i=0; i < moviesFromCsv.length; i++) {
+      
+      // create variable from CSV
+      let movie = moviesFromCsv[i]
 
-    }
+      // conditional about start years and genre
+      if (movie.startYear == year && movie.genres.includes(genre)){
+        let movieDetails = {
+          title: movie.primaryTitle,
+          year: movie.startYear,
+          genres: movie.genres,
+        }
+
+        // conditional about empty results
+        if (movie.genres != `\\N` && movie.runtimeMinutes != `\\N`) {
+          returnValue.movies.push(movieDetails)
+        }
+        console.log(movieDetails)
+      }
+      returnValue.numResults = returnValue.movies.length
+    } // end for loop
 
     // a lambda function returns a status code and a string of data
     return {
       statusCode: 200, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-      body: `Hello from the back-end!` // a string of data
+      body: JSON.stringify(returnValue) // a string of data
     }
   }
 }
